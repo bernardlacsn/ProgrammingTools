@@ -1,0 +1,88 @@
+-GIT
+https://www.youtube.com/watch?v=SWYqp7iY_Tc
+https://github.com/login
+http://git-scm.com/download/win
+
+- git commands
+$ git init   		//initialize local Git repository
+$ git add <file>	//add File(s) to Index
+$ git status  		//check status of working area
+$ git commit		//commit changes in Index
+
+for remote repository
+$ git push   			// Push to remote repository
+$ git pull   			// pull latest From remote repository
+$ git clone          	// Clone Repository into a new Directory
+
+-------------------------
+$ git --version
+$ touch index.html   //create new file index.html
+
+$ git init
+$ git config --global user.name 'Bernard Lacson' 
+$ git config --global user.email 'lacson.blsky0711@gmail.com'
+
+// index.html was updated
+$ git add index.html 
+$ git status
+
+//remove file to track
+$ git rm --cached index.html
+$ git status
+ 
+//add all files to track
+$ git add .
+
+
+$ git commit
+//press I 
+
+//to save
+press escape key
+:wq
+
+
+//commit with comment
+$ git commit -m 'changed in app.js'
+
+//ignore files or dir
+$ touch .gitignore
+
+// create branch test
+$ git branch test
+
+$ git checkout test  //use new branch test
+
+//merge file from branch to master
+$ git merge test 
+
+--------------------------------
+Using REMOTE Repository
+$ git remote
+
+//add remote repository
+$ git remote add origin https://github.com/bradtraversy/myappsample.git
+
+$ git remote
+
+//push the master to remote master
+$ git push -u origin master
+
+//clone ; create a new directory in local
+$ git clone [git hub link of application]
+
+//pull everything , update local
+$ git pull
+
+----------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+

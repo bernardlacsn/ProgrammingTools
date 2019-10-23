@@ -1,0 +1,387 @@
+NET CORE
+SDK - Software Development Kit
+download - https://visualstudio.microsoft.com
+https://dotnet.microsoft.com/download
+
+create folder
+wwwroot
+ - css folder
+ - images
+ - js 
+
+--------------------------------------------------------------
+
+-- set-up MVC
+* Startup.cs file
+  - ConfigureServices method  ==> dependency injection container
+     - services.AddMvc()
+	 - services.AddSingleton<IEmployeeRepository,MockEmployeeRepository>();
+	 
+	 
+  - Configure method
+    - app.UseMvcWithDefaultRoute() ==> add MVC middleware to the request pipeline  
+	
+-------------------------------------------------------------------
+
+- create folder
+ - Controllers
+   - HomeController.cs - create home controller
+  
+  
+using Microsoft.AspNetCore.Mvc;
+  
+namespace EmployeeManagement.Controllers
+{
+	public class HomeController : Controller 
+	{
+		public string Index()
+		{
+		  return "Hello from MVC";			
+		}
+		
+		public JsonResult Index()
+		{
+		  return Json(new {id=1,name="bernardlacson"}); 		
+		}
+		
+	}
+
+} 
+ 
+ -----------------------------------------------------------------
+ - Models
+ 
+ - Create Models Folder 
+  - create Employee model class - Employee.cs
+  
+namespace EmployeeManagement.Models
+{
+	public class Employee
+	{
+		public int Id {get;set;}
+		public string Name {get;set;}
+		public string Email {get;set;}
+		public string Department {get;set;}
+	}
+
+} 
+  
+
+-- Add Interface
+   - IEmployeeRepository.cs
+namespace EmployeeManagement.Models
+{
+	public interface IEmployeeRepository
+	{
+		Employee GetEmployee(int Id);
+		
+		//for List view
+		IEnumerable<Employee> GetAllEmployee();
+		
+	}
+}  
+ 
+
+-- Add Class
+ - MockEmployeeRepository.cs
+ 
+namespace EmployeeManagement.Models
+{
+	public class MockEmployeeRepository : IEmployeeRepository
+	{
+		private List<Employee> _employeeList;
+		
+		
+		//constructor
+		public MockEmployeeRepository()
+		{
+			_employeeList = new List<Employee>()
+			{
+				new Employee(){ Id=1,Name="Mary",Department="HR",Email="mary@pragim.com"},
+				new Employee(){ Id=2,Name="John",Department="IT",Email="john@pragim.com"},
+				new Employee(){ Id=3,Name="Sam",Department="IT",Email="sam@pragim.com"}
+			};
+		
+		}
+				
+		public Employee GetEmployee(int Id)
+		{
+			return _employeeList.FirstOrDefault(e => e.Id==Id);
+	    }
+		
+		public IEnumerable<Employee> GetAllEmployee()
+		{
+			return _employeeList;
+		}
+		
+	}
+}  
+   
+-- edit the HomeController inherit  Controller
+using Microsoft.AspNetCore.Mvc;
+  
+namespace EmployeeManagement.Controllers
+{
+	public class HomeController : Controller 
+	{
+		private readonly IEmployeeRepository _employeerepository;
+	
+		//constructor injection
+		public HomeController(IEmployeeRepository employeerepository)
+		{
+			_employeerepository = employeerepository;
+		}
+		
+		
+		public string Index()
+		{
+		  return _employeerepository.GetEmployee(1).Name;
+		  
+		}
+		
+		public JsonResult Details()
+		{
+			Employee model = _employeerepository.GetEmployee(1);
+			return Json(model);
+		  
+		}
+		
+		public ViewResult Details()
+		{
+			Employee model = _employeerepository.GetEmployee(1);
+			
+			//use ViewData
+			ViewData["Employee"] = model;
+			ViewData["PageTitle"] = "Employee Details";
+			return View();
+			
+			
+			//use ViewBag
+			ViewBag.Employee = model;
+			Viewbag.PageTitle = "Employee Details";
+			return View();
+						
+			using Strongly Typed 
+			return View(model);
+		  
+		  
+			//use ViewModels
+			HomeDetailsViewModel homeDetailsViewModel = new   HomeDetailsViewModel()
+			{
+				Employee = _employeerepository.GetEmployee(1);
+				PageTitle= "Employee Details";
+			}
+			return View(homeDetailsViewModel);
+			
+		}
+	}
+}   
+  
+--------------------------------
+- VIEW
+ - create folder Views
+   - create folder Home
+    - create Details.cshtml file ==> razor view
+
+-- using ViewData in View...	
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<title></title>
+</head> 
+<body>
+		<h3>@ViewData["PageTitle"]</h3>
+
+		@{
+			var employee = ViewData["Employee"] as EmployeeManagement.Models.Employee;
+				
+		}
+		
+		<div>
+			Name : @employee.Name
+		</div>
+		<div>
+			Email : @employee.Email
+		</div>
+		<div>
+			Department : @employee.Department
+		</div>
+</body> 
+</html> 
+ 
+ -------
+-- using Viewbag in View...	
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<title></title>
+</head> 
+<body>
+		<h3>@Viewbag.PageTitle </h3>
+		<div>
+			Name : @ViewBag.Employee.Name
+		</div>
+		<div>
+			Email : @ViewBag.Employee.Email
+		</div>
+		<div>
+			Department : @ViewBag.Employee.Department
+		</div>
+	
+</body> 
+</html>  
+  
+------------------------------------------------------------  
+ 
+ -- using Strongly Typed View
+@model EmployeeManagement.Models.Employee 
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<title></title>
+</head> 
+<body>
+		<h3>@Viewbag.PageTitle </h3>
+		<div>
+			Name : 			@Model.Name
+		</div>
+		<div>
+			Email : 		@Model.Email
+		</div>
+		<div>
+			Department :	@Model.Department
+		</div>
+	
+</body> 
+</html>  
+  
+------------------------------------------------------------------
+
+- ViewModels
+ - create folder ViewModels ==> data transfer object or dto
+   - add new class file name HomeDetailsViewModel.cs
+ 
+namespace EmployeeManagement.ViewModels
+{
+	public class HomeDetailsViewModel
+	{
+		public Employee Employee {get;set;}
+		public string  PageTitle {get;set;}
+
+	}
+}
+ 
+---------
+-- using ViewModels
+@model EmployeeManagement.ViewModels.HomeDetailsViewModel
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<title></title>
+</head> 
+<body>
+		<h3>@Model.PageTitle</h3>
+		<div>
+			Name : 			@Model.Employee.Name
+		</div>
+		<div>
+			Email : 		@Model.Employee.Email
+		</div>
+		<div>
+			Department :	@Model.Employee.Department
+		</div>
+	
+</body> 
+</html>  
+  
+ ------------------------------------------------------------
+
+-- List View 
+using Microsoft.AspNetCore.Mvc;
+  
+namespace EmployeeManagement.Controllers
+{
+	public class HomeController : Controller 
+	{
+		private readonly IEmployeeRepository _employeerepository;
+	
+		//constructor injection
+		public HomeController(IEmployeeRepository employeerepository)
+		{
+			_employeerepository = employeerepository;
+		}
+		
+		
+		public ViewResult Index()
+		{
+		  var model _employeerepository.GetAllEmployee();
+		  return View(model); 
+		}
+		
+	}
+}   
+  
+ -- view using IEnumarable ; with using layout view
+@model IEnumerable<EmployeeManagement.Models.Employee>
+
+@{
+	Layout="~/View/Shared/_Layout.cshtml"
+	ViewBag.Title="Employee List"
+}
+<table>
+	<thead>
+		<tr>
+			<th>ID</th>
+			<th>Name</th>
+			<th>Department</th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var employee in Model)
+		{
+			<tr>					
+				<td>@employee.Id</td>
+				<td>@employee.Name</td>
+				<td>@employee.Department</td>
+			</tr>
+		}				
+	
+	</tbody>
+	
+</table>
+	
+  
+----------------------------------------------------------------------  
+ 
+Layout View
+ - create razor _Layout.cshtml
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width"  />
+		<title>@ViewBag.Title</title>
+	</head>
+	<body>
+		<div>
+			@RenderBody()
+		</div>
+	</body>
+</html>
+
+-------------------------------------------------------
+
+
+
+ 
+  
+  
+  
+  
+  
+  
+  
+ 
+ 
+ 
+ 
+ 
