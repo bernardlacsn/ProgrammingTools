@@ -76,7 +76,14 @@ $ git pull
 
 ----------------------------------------------------------------------
 
-update 3...
+//using rebase
+$ git pull --rebase origin master
+
+//continue rebase  after editing the conflictusing, then push to origin/remote
+$ git rebase --continue
+$ git push origin master  
+
+
 
 
 
